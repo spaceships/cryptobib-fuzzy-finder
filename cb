@@ -37,4 +37,4 @@ while (<STDIN>) {
         }
     }
 }
-say for @citations;"
+print join ' ', @citations;"
