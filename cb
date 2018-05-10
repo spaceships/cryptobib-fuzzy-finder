@@ -6,11 +6,6 @@ dir="$HOME/.cb"
 bib="$dir/cryptobib/crypto.bib"
 n=12
 
-if [[ ! `which rg` ]]; then
-    echo "rg required: https://github.com/BurntSushi/ripgrep"
-    exit 1
-fi
-
 if [[ ! `which git` ]]; then
     echo git required
     exit 1
@@ -32,8 +27,8 @@ if [[ ! -d $dir/cryptobib ]]; then
     git clone "git@github.com:cryptobib/export.git" "$dir/cryptobib"
 fi
 
-line=$(rg -e '\s+title = ' "$bib" | fzf --preview="unbuffer rg --color=always --fixed-strings -C$n {} $bib")
-rg -C"$n" --fixed-strings "$line" "$bib" | perl -E "
+line=$(grep -Pe '\s+title = ' "$bib" | fzf --preview="unbuffer grep --color=always --fixed-strings -C$n {} $bib")
+grep -C"$n" --fixed-strings "$line" "$bib" | perl -E "
 while (<STDIN>) {
     if (/^@.*\{(.*),$/../^\}$/) {
         chomp;
