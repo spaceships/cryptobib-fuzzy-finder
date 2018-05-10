@@ -28,7 +28,8 @@ if [[ ! -d $dir/cryptobib ]]; then
 fi
 
 line=$(grep -Pe '\s+title = ' "$bib" | fzf --preview="unbuffer grep --color=always --fixed-strings -C$n {} $bib")
-grep -C"$n" --fixed-strings "$line" "$bib" | perl -E "
+
+citations=$(grep -C"$n" --fixed-strings "$line" "$bib" | perl -E "
 while (<STDIN>) {
     if (/^@.*\{(.*),$/../^\}$/) {
         chomp;
@@ -37,4 +38,7 @@ while (<STDIN>) {
         }
     }
 }
-print join ' ', @citations;"
+print join ' ', @citations;")
+
+echo $citations
+echo -n $citations | xclip
