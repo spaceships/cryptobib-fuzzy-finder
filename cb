@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -e
+
+dir="$HOME/.cb"
+bib="$dir/cryptobib/crypto.bib"
+n=12
+
+if [[ ! `which rg` ]]; then
+    echo "rg required: https://github.com/BurntSushi/ripgrep"
+    exit 1
+fi
+
+if [[ ! `which git` ]]; then
+    echo git required
+    exit 1
+fi
+
+if [[ ! `which fzf` ]]; then
+    echo "fzf required: https://github.com/junegunn/fzf"
+    exit 1
+fi
+
+# create config dir if it doesn't exist already
+if [[ ! -d $dir ]]; then
+    echo "creating config directory $dir"
+    mkdir -p "$dir"
+fi
+
+# clone cryptobib if it isn't already
+if [[ ! -d $dir/cryptobib ]]; then
+    git clone "git@github.com:cryptobib/export.git" "$dir/cryptobib"
+fi
+
+line=$(rg -e '\s+title = ' "$bib" | fzf --preview="unbuffer rg --color=always --fixed-strings -C$n {} $bib")
+rg -C"$n" --fixed-strings "$line" "$bib" | perl -E "
+while (<STDIN>) {
+    if (/^@.*\{(.*),$/../^\}$/) {
+        chomp;
+        if (\$_ eq q/$line/) {
+            push @citations, \$1;
+        }
+    }
+}
+say for @citations;"
