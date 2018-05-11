@@ -34,7 +34,7 @@ fi
 
 line=$(grep -Pe '\s+title = ' "$bib" | fzf --preview="unbuffer grep --color=always --fixed-strings -C$n {} $bib")
 
-citations=$(grep -C"$n" --fixed-strings "$line" "$bib" | perl -E "
+citations=($(grep -C"$n" --fixed-strings "$line" "$bib" | perl -E "
 while (<STDIN>) {
     if (/^@.*\{(.*),$/../^\}$/) {
         chomp;
@@ -43,7 +43,21 @@ while (<STDIN>) {
         }
     }
 }
-print join ' ', @citations;")
+print join ' ', @citations;"))
 
-echo $citations
-[[ `type xclip ` ]] && echo -n $citations | xclip
+copy() {
+    echo "\\cite{$1}"
+    [[ `type xclip` ]] && echo -n "\\cite{$1}" | xclip
+}
+
+if [[ "${#citations[@]}" -gt 1 ]]; then 
+    echo "multiple citations:"
+    for ((i = 0; i < ${#citations[@]}; i++)) do
+        echo "  $((i+1))) ${citations[$i]}"
+    done
+    echo -n "which citation? [1-${#citations[@]}] "
+    read response
+    copy "${citations[$((response - 1))]}"
+else 
+    copy "${citations[0]}"
+fi
