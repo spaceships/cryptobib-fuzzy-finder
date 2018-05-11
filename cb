@@ -2,19 +2,24 @@
 
 set -e
 
-dir="$HOME/.cb"
-bib="$dir/cryptobib/crypto.bib"
-n=12
-
-if [[ ! `which git` ]]; then
+if [[ ! `type git` ]]; then
     echo git required
     exit 1
 fi
 
-if [[ ! `which fzf` ]]; then
+if [[ ! `type fzf` ]]; then
     echo "fzf required: https://github.com/junegunn/fzf"
     exit 1
 fi
+
+if [[ ! `type grep` ]]; then
+    echo "grep required"
+    exit 1
+fi
+
+dir="$HOME/.cb"
+bib="$dir/cryptobib/crypto.bib"
+n=12
 
 # create config dir if it doesn't exist already
 if [[ ! -d $dir ]]; then
@@ -41,4 +46,4 @@ while (<STDIN>) {
 print join ' ', @citations;")
 
 echo $citations
-echo -n $citations | xclip
+[[ `type xclip ` ]] && echo -n $citations | xclip
