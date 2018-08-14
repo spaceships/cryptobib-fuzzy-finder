@@ -2,6 +2,37 @@
 
 set -e
 
+include_cite=1
+
+usage() {
+    echo "$0 [options]"
+    echo "    -C        only copy reference to clipboard"
+    echo "    -h        this message"
+}
+
+args=()
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -C)
+            include_cite=""
+            shift
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        -*)
+            echo "error: unkown option $1!"
+            usage
+            exit 1
+            ;;
+        *)
+            args+=("$1")
+            shift
+    esac
+done
+set -- "${args[@]}"
+
 if [[ ! `type git` ]]; then
     echo git required
     exit 1
@@ -45,9 +76,20 @@ while (<STDIN>) {
 }
 print join ' ', @citations;"))
 
+if [[ $include_cite ]]; then
+    function cite() {
+        echo -n "\\cite{$1}"
+    }
+else 
+    function cite() {
+        echo -n "$1"
+    }
+fi
+
 copy() {
-    echo "\\cite{$1}"
-    [[ `type xclip` ]] && echo -n "\\cite{$1}" | xclip
+    cite $1
+    echo
+    [[ `type xclip` ]] && cite $1 | xclip
 }
 
 if [[ "${#citations[@]}" -gt 1 ]]; then 
