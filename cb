@@ -48,6 +48,15 @@ if [[ ! `type grep` ]]; then
     exit 1
 fi
 
+if [[ ! `type unbuffer` ]]; then
+    echo "unbuffer required"
+    exit 1
+fi
+
+if [[ ! `type xclip` ]]; then
+    echo "xclip not found, but recommended for automatic copy of citations to clipboard"
+fi
+
 dir="$HOME/.cb"
 bib="$dir/cryptobib/crypto.bib"
 n=12
